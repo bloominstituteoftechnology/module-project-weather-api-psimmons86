@@ -1,5 +1,8 @@
 async function sprintChallenge5() {
-  // ... (previous code)
+  // 👇 WORK WORK BELOW THIS LINE 👇
+  const footer = document.querySelector('footer')
+  const currentYear = new Date().getFullYear()
+  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY ${currentYear}`
 
   const infoElement = document.querySelector('.info')
   const cardsContainer = document.querySelector('.cards')
@@ -51,6 +54,12 @@ async function sprintChallenge5() {
     console.error('Error fetching data:', error)
     infoElement.textContent = 'An error occurred while fetching data'
   }
+
+  // 👆 WORK WORK ABOVE THIS LINE 👆
 }
 
-// ... (rest of the code)
+// ❗ DO NOT CHANGE THE CODE BELOW
+// ❗ DO NOT CHANGE THE CODE BELOW
+// ❗ DO NOT CHANGE THE CODE BELOW
+if (typeof module !== 'undefined' && module.exports) module.exports = { sprintChallenge5 }
+else sprintChallenge5()
