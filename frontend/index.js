@@ -1,89 +1,82 @@
-async function moduleProject4() {
-  // 👇 WORK WORK BELOW THIS LINE 👇
+async function sprintChallenge5() {
   const footer = document.querySelector('footer')
-  const currentYear = new Date().getFullYear()
-  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY ${currentYear}`
+  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY 2023`
 
-  let descriptions = [
-    ["Sunny", "☀️"],
-    ["Cloudy", "☁️"],
-    ["Rainy", "🌧️"],
-    ["Thunderstorm", "⛈️"],
-    ["Snowy", "❄️"],
-    ["Partly Cloudy", "⛅️"]
-  ]
+  const infoElement = document.querySelector('.info')
+  const cardsContainer = document.querySelector('.cards')
 
-  // 👉 Tasks 1 - 5 go here
-  document.querySelector('#weatherWidget').style.display = 'none'
-  
-  document.querySelector('#citySelect').addEventListener('change', async evt => {
+  async function fetchData(url) {
     try {
-      // Task 3: Prepare to fetch the weather data
-      const citySelect = document.querySelector('#citySelect')
-      const weatherWidget = document.querySelector('#weatherWidget')
-      const infoElement = document.querySelector('.info')
+      const response = await axios.get(url)
+      console.log(`Data fetched from ${url}:`, response.data) // Debugging
+      return response.data
+    } catch (error) {
+      console.error(`Error fetching data from ${url}:`, error)
+      throw error
+    }
+  }
 
-      citySelect.setAttribute('disabled', 'disabled')
-      weatherWidget.style.display = 'none'
-      infoElement.textContent = 'Fetching weather data...'
+  try {
+    infoElement.textContent = 'Loading data...'
+    
+    const [learners, mentors] = await Promise.all([
+      fetchData('http://localhost:3003/api/learners'),
+      fetchData('http://localhost:3003/api/mentors')
+    ])
 
-      const city = evt.target.value
-      const url = `http://localhost:3003/api/weather?city=${city}`
+    if (!Array.isArray(learners) || learners.length === 0) {
+      throw new Error('No learners data received or data is not an array')
+    }
 
-      // Task 4: Launch a request to the weather API
-      const res = await axios.get(url)
-      console.log(res.data)
+    cardsContainer.innerHTML = ''
 
-      // Task 5: Handle data fetching success
-      infoElement.textContent = ''
-      citySelect.removeAttribute('disabled')
-      weatherWidget.style.display = 'block'
+    learners.forEach(learner => {
+      const card = document.createElement('div')
+      card.className = 'card'
+      
+      const mentorsList = learner.mentors
+        .map(mentorId => {
+          const mentor = mentors.find(m => m.id === mentorId)
+          return mentor ? `<li>${mentor.firstName} ${mentor.lastName}</li>` : ''
+        })
+        .join('')
 
-      // Update the DOM with weather data
-      const data = res.data
-      document.querySelector('#location div:first-child').textContent = data.location.city
-      document.querySelector('#location div:last-child').textContent = data.location.country
-
-      const apparentTempElement = document.querySelector('#apparentTemp div:last-child')
-      apparentTempElement.textContent = `${data.current.apparent_temperature}°`
-
-      const todayDescriptionElement = document.querySelector('#todayDescription')
-      const descriptionEmoji = descriptions.find(desc => desc[0] === data.current.weather_description)[1]
-      todayDescriptionElement.innerHTML = `${descriptionEmoji} <span>${data.current.weather_description}</span>`
-
-      const todayStatsElement = document.querySelector('#todayStats')
-      todayStatsElement.innerHTML = `
-        <div>${data.current.temperature_min}°/${data.current.temperature_max}°</div>
-        <div>Precipitation: ${Math.round(data.current.precipitation_probability * 100)}%</div>
-        <div>Humidity: ${data.current.humidity}%</div>
-        <div>Wind: ${data.current.wind_speed}m/s</div>
+      card.innerHTML = `
+        <h3>${learner.fullName}</h3>
+        <div>${learner.email}</div>
+        <h4 class="closed">Mentors</h4>
+        <ul style="display: none;">
+          ${mentorsList}
+        </ul>
       `
+      cardsContainer.appendChild(card)
 
-      // Update forecast
-      const forecastDays = ['Thursday', 'Friday', 'Saturday'];
-      data.forecast.daily.forEach((day, index) => {
-        const forecastElement = document.querySelector(`.next-day:nth-child(${index + 1})`)
-        const forecastDayOfWeek = forecastDays[index];
-        const forecastEmoji = descriptions.find(desc => desc[0] === day.weather_description)[1]
-        forecastElement.innerHTML = `
-          <div>${forecastDayOfWeek}</div>
-          <div>${forecastEmoji}</div>
-          <div>${day.temperature_min}°/${day.temperature_max}°</div>
-          <div>Precipitation: ${Math.round(day.precipitation_probability * 100)}%</div>
-        `
+      card.addEventListener('click', () => {
+        const wasSelected = card.classList.contains('selected')
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
+        if (!wasSelected) {
+          card.classList.add('selected')
+          infoElement.textContent = `The selected learner is ${learner.fullName}`
+        } else {
+          infoElement.textContent = 'No learner is selected'
+        }
       })
-    }
-    catch (err) {
-      console.error(err)
-      document.querySelector('.info').textContent = 'Failed to fetch weather data. Please try again.'
-      document.querySelector('#citySelect').removeAttribute('disabled')
-    }
-  })
-  // 👆 WORK WORK ABOVE THIS LINE 👆
+    })
+
+    infoElement.textContent = 'No learner is selected'
+    console.log('Cards rendered successfully') // Debugging
+  } catch (error) {
+    console.error('Error in sprintChallenge5:', error)
+    infoElement.textContent = 'An error occurred while fetching data'
+    // Add more detailed error information to the DOM for debugging
+    const errorDiv = document.createElement('div')
+    errorDiv.textContent = `Error details: ${error.message}`
+    document.body.appendChild(errorDiv)
+  }
 }
 
-// ❗ DO NOT CHANGE THE CODE  BELOW
-// ❗ DO NOT CHANGE THE CODE  BELOW
-// ❗ DO NOT CHANGE THE CODE  BELOW
-if (typeof module !== 'undefined' && module.exports) module.exports = { moduleProject4 }
-else moduleProject4()
+// Immediately invoke the function to run it
+sprintChallenge5()
+
+// Do not change this code
+if (typeof module !== 'undefined' && module.exports) module.exports = { sprintChallenge5 }
