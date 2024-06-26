@@ -1,19 +1,30 @@
 async function sprintChallenge5() {
   // 👇 WORK WORK BELOW THIS LINE 👇
   const footer = document.querySelector('footer')
-  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY 2023` // Hardcode to 2023
+  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY 2023`
 
   const infoElement = document.querySelector('.info')
   const cardsContainer = document.querySelector('.cards')
 
+  async function fetchData(url) {
+    const response = await axios.get(url)
+    return response.data
+  }
+
   try {
     infoElement.textContent = 'Loading data...'
-    const [learnersRes, mentorsRes] = await Promise.all([
-      axios.get('http://localhost:3003/api/learners'),
-      axios.get('http://localhost:3003/api/mentors')
+    
+    const [learners, mentors] = await Promise.all([
+      fetchData('http://localhost:3003/api/learners'),
+      fetchData('http://localhost:3003/api/mentors')
     ])
-    const learners = learnersRes.data
-    const mentors = mentorsRes.data
+
+    console.log('Learners:', learners) // Debugging
+    console.log('Mentors:', mentors) // Debugging
+
+    if (!learners.length) {
+      throw new Error('No learners data received')
+    }
 
     // Clear any existing cards
     cardsContainer.innerHTML = ''
@@ -22,15 +33,20 @@ async function sprintChallenge5() {
     learners.forEach(learner => {
       const card = document.createElement('div')
       card.className = 'card'
+      
+      const mentorsList = learner.mentors
+        .map(mentorId => {
+          const mentor = mentors.find(m => m.id === mentorId)
+          return mentor ? `<li>${mentor.firstName} ${mentor.lastName}</li>` : ''
+        })
+        .join('')
+
       card.innerHTML = `
         <h3>${learner.fullName}</h3>
         <div>${learner.email}</div>
         <h4 class="closed">Mentors</h4>
         <ul style="display: none;">
-          ${learner.mentors.map(mentorId => {
-            const mentor = mentors.find(m => m.id === mentorId)
-            return mentor ? `<li>${mentor.firstName} ${mentor.lastName}</li>` : ''
-          }).join('')}
+          ${mentorsList}
         </ul>
       `
       cardsContainer.appendChild(card)
@@ -50,7 +66,7 @@ async function sprintChallenge5() {
 
     infoElement.textContent = 'No learner is selected'
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error:', error) // Debugging
     infoElement.textContent = 'An error occurred while fetching data'
   }
 
