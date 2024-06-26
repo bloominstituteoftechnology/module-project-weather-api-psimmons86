@@ -1,8 +1,7 @@
 async function sprintChallenge5() {
   // 👇 WORK WORK BELOW THIS LINE 👇
   const footer = document.querySelector('footer')
-  const currentYear = new Date().getFullYear()
-  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY ${currentYear}`
+  footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY 2023` // Hardcode to 2023
 
   const infoElement = document.querySelector('.info')
   const cardsContainer = document.querySelector('.cards')
@@ -26,7 +25,7 @@ async function sprintChallenge5() {
       card.innerHTML = `
         <h3>${learner.fullName}</h3>
         <div>${learner.email}</div>
-        <h4>Mentors</h4>
+        <h4 class="closed">Mentors</h4>
         <ul style="display: none;">
           ${learner.mentors.map(mentorId => {
             const mentor = mentors.find(m => m.id === mentorId)
