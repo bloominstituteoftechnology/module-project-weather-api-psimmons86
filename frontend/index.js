@@ -1,89 +1,66 @@
-async function moduleProject4() {
+async function sprintChallenge5() {
   // 👇 WORK WORK BELOW THIS LINE 👇
   const footer = document.querySelector('footer')
   const currentYear = new Date().getFullYear()
   footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY ${currentYear}`
 
-  let descriptions = [
-    ["Sunny", "☀️"],
-    ["Cloudy", "☁️"],
-    ["Rainy", "🌧️"],
-    ["Thunderstorm", "⛈️"],
-    ["Snowy", "❄️"],
-    ["Partly Cloudy", "⛅️"]
-  ]
+  const infoElement = document.querySelector('.info')
+  const cardsContainer = document.querySelector('.cards')
 
-  // 👉 Tasks 1 - 5 go here
-  document.querySelector('#weatherWidget').style.display = 'none'
-  
-  document.querySelector('#citySelect').addEventListener('change', async evt => {
-    try {
-      // Task 3: Prepare to fetch the weather data
-      const citySelect = document.querySelector('#citySelect')
-      const weatherWidget = document.querySelector('#weatherWidget')
-      const infoElement = document.querySelector('.info')
+  // Utility function to create and append an element
+  function createElement(type, parent, textContent = '', className = '') {
+    const element = document.createElement(type)
+    element.textContent = textContent
+    if (className) element.className = className
+    parent.appendChild(element)
+    return element
+  }
 
-      citySelect.setAttribute('disabled', 'disabled')
-      weatherWidget.style.display = 'none'
-      infoElement.textContent = 'Fetching weather data...'
+  try {
+    // Fetch learners data
+    const learnersRes = await axios.get('http://localhost:3003/api/learners')
+    const mentorsRes = await axios.get('http://localhost:3003/api/mentors')
+    const learners = learnersRes.data
+    const mentors = mentorsRes.data
 
-      const city = evt.target.value
-      const url = `http://localhost:3003/api/weather?city=${city}`
-
-      // Task 4: Launch a request to the weather API
-      const res = await axios.get(url)
-      console.log(res.data)
-
-      // Task 5: Handle data fetching success
-      infoElement.textContent = ''
-      citySelect.removeAttribute('disabled')
-      weatherWidget.style.display = 'block'
-
-      // Update the DOM with weather data
-      const data = res.data
-      document.querySelector('#location div:first-child').textContent = data.location.city
-      document.querySelector('#location div:last-child').textContent = data.location.country
-
-      const apparentTempElement = document.querySelector('#apparentTemp div:last-child')
-      apparentTempElement.textContent = `${data.current.apparent_temperature}°`
-
-      const todayDescriptionElement = document.querySelector('#todayDescription')
-      const descriptionEmoji = descriptions.find(desc => desc[0] === data.current.weather_description)[1]
-      todayDescriptionElement.innerHTML = `${descriptionEmoji} <span>${data.current.weather_description}</span>`
-
-      const todayStatsElement = document.querySelector('#todayStats')
-      todayStatsElement.innerHTML = `
-        <div>${data.current.temperature_min}°/${data.current.temperature_max}°</div>
-        <div>Precipitation: ${Math.round(data.current.precipitation_probability * 100)}%</div>
-        <div>Humidity: ${data.current.humidity}%</div>
-        <div>Wind: ${data.current.wind_speed}m/s</div>
-      `
-
-      // Update forecast
-      const forecastDays = ['Thursday', 'Friday', 'Saturday'];
-      data.forecast.daily.forEach((day, index) => {
-        const forecastElement = document.querySelector(`.next-day:nth-child(${index + 1})`)
-        const forecastDayOfWeek = forecastDays[index];
-        const forecastEmoji = descriptions.find(desc => desc[0] === day.weather_description)[1]
-        forecastElement.innerHTML = `
-          <div>${forecastDayOfWeek}</div>
-          <div>${forecastEmoji}</div>
-          <div>${day.temperature_min}°/${day.temperature_max}°</div>
-          <div>Precipitation: ${Math.round(day.precipitation_probability * 100)}%</div>
-        `
+    // Create learner cards
+    learners.forEach(learner => {
+      const card = createElement('div', cardsContainer, '', 'card')
+      createElement('h3', card, learner.fullName)
+      createElement('div', card, learner.email)
+      createElement('h4', card, 'Mentors')
+      const ul = createElement('ul', card)
+      ul.style.display = 'none'  // Initially hide mentors
+      learner.mentors.forEach(mentorId => {
+        const mentor = mentors.find(m => m.id === mentorId)
+        if (mentor) {
+          createElement('li', ul, mentor.firstName + ' ' + mentor.lastName)
+        }
       })
-    }
-    catch (err) {
-      console.error(err)
-      document.querySelector('.info').textContent = 'Failed to fetch weather data. Please try again.'
-      document.querySelector('#citySelect').removeAttribute('disabled')
-    }
-  })
+
+      // Add click event listener to card
+      card.addEventListener('click', () => {
+        const wasSelected = card.classList.contains('selected')
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
+        if (!wasSelected) {
+          card.classList.add('selected')
+          infoElement.textContent = `The selected learner is ${learner.fullName}`
+        } else {
+          infoElement.textContent = 'No learner is selected'
+        }
+      })
+    })
+
+    infoElement.textContent = 'No learner is selected'
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    infoElement.textContent = 'An error occurred while fetching data'
+  }
   // 👆 WORK WORK ABOVE THIS LINE 👆
 }
 
 // ❗ DO NOT CHANGE THE CODE  BELOW
 // ❗ DO NOT CHANGE THE CODE  BELOW
 // ❗ DO NOT CHANGE THE CODE  BELOW
-if (typeof module !== 'undefined' && module.exports) module.exports = { moduleProject4 }
-else moduleProject4()
+if (typeof module !== 'undefined' && module.exports) module.exports = { sprintChallenge5 }
+else sprintChallenge5()
