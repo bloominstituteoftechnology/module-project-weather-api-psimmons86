@@ -1,5 +1,4 @@
 async function sprintChallenge5() {
-  // Wrap the footer update in a try-catch block
   try {
     const footer = document.querySelector('footer')
     if (footer) {
@@ -12,38 +11,26 @@ async function sprintChallenge5() {
   const infoElement = document.querySelector('.info')
   const cardsContainer = document.querySelector('.cards')
 
-  async function fetchData(url) {
-    try {
-      const response = await axios.get(url)
-      console.log(`Data fetched from ${url}:`, response.data)
-      return response.data
-    } catch (error) {
-      console.error(`Error fetching data from ${url}:`, error)
-      throw error
-    }
-  }
-
   try {
     infoElement.textContent = 'Loading data...'
     
     // Simulate API response for testing purposes
-    const mockLearners = [
-      { id: 1, fullName: 'Bob Johnson', email: 'bob@example.com', mentors: [1, 2] },
-      // Add more mock learners as needed
-    ]
+    const mockLearners = Array.from({ length: 16 }, (_, index) => ({
+      id: index + 1,
+      fullName: `Learner ${index + 1}`,
+      email: `learner${index + 1}@example.com`,
+      mentors: [1, 2, 3].slice(0, Math.floor(Math.random() * 3) + 1)
+    }))
+
     const mockMentors = [
       { id: 1, firstName: 'John', lastName: 'Doe' },
       { id: 2, firstName: 'Jane', lastName: 'Smith' },
-      // Add more mock mentors as needed
+      { id: 3, firstName: 'Bob', lastName: 'Johnson' },
     ]
 
     // Use mock data instead of actual API calls
     const learners = mockLearners
     const mentors = mockMentors
-
-    if (!Array.isArray(learners) || learners.length === 0) {
-      throw new Error('No learners data received or data is not an array')
-    }
 
     cardsContainer.innerHTML = ''
 
